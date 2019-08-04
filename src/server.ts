@@ -1,16 +1,19 @@
 import { createConnection, Connection } from "typeorm";
 import ormconfig from './ormconfig';
 import App from './app';
-import controllers from './handlers/index';
+import getControllers from './handlers/index';
 
 async function bootstrap() {
 	try {
 		await createConnection(ormconfig);
-		const app = new App(controllers, 5000);
+		const app = new App(getControllers(), 5000);
 		app.listen();
 	}
 	catch(err) {
-		console.log("Error: DB connection");
+		if(err.message) {
+			console.log(err.message);	
+		}
+		else console.log(err);	
 		return err;
 	}
 }

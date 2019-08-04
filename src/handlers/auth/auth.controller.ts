@@ -10,8 +10,16 @@ export default class AuthController {
 	}
 
 	initializeRoutes() {
-		this.router.get('/registration', async (req, res) => {
-			await res.send(this.authService.addUser('Hello, world'));
+		this.router.post('/registration', async (req, res) => {
+			try {
+				const response = this.authService.addUser(req.body);
+				res.send(response);
+			}
+			catch(err) {
+				if(err.name === "HttpException") {
+					res.status(400).send(err.message);
+				}
+			}
 		});
 	}
 }
