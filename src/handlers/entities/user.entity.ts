@@ -6,16 +6,16 @@ export default class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({type: "varchar", unique: true})
+  @Column({name: 'email', type: "varchar", unique: true, length: 40 })
   email: string;
 
-  @Column({type: "varchar", length: 30})
+  @Column({type: "varchar", length: 255})
   password: string;
 
-  @Column({name: 'first_name', type: "varchar", length: 30})
+  @Column({name: 'first_name', type: "varchar", length: 28})
   firstName: string;
 
-  @Column({name: 'last_name', type: "varchar", length: 30})
+  @Column({name: 'last_name', type: "varchar", length: 27})
   lastName: string;
 
   @BeforeInsert()

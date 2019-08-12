@@ -1,5 +1,6 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
+import errorMiddleware from './middlewares/error.middleware';
 enum ConsoleColors {
 	Green = "\x1b[32m"
 }
@@ -13,6 +14,7 @@ export default class App {
 		this.port = port;
 		this.initializeMiddlewares();
 		this.initializeControllers(controllers);
+		this.initializeErrorHandling();
 	}
 
 	private initializeMiddlewares() {
@@ -26,9 +28,14 @@ export default class App {
 
 	private initializeControllers(controllers) {
 		controllers.forEach(controller => {
-			this.app.use('/', controller.router);
+			this.app.use('/v1', controller.router);
 		})
 	}
+
+	 private initializeErrorHandling() {
+    	this.app.use(errorMiddleware);
+  	}
+
 
 	public listen() {
 		this.app.listen(this.port, () => {
