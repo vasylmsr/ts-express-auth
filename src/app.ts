@@ -32,9 +32,9 @@ export default class App {
 		})
 	}
 
-	 private initializeErrorHandling() {
-    	this.app.use(errorMiddleware);
-  	}
+	private initializeErrorHandling() {
+  	this.app.use(errorMiddleware);
+  }
 
 
 	public listen() {
