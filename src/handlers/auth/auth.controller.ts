@@ -1,7 +1,6 @@
 import * as express from 'express';
 import AuthService from './auth.service';
 
-
 export default class AuthController {
 	public router = express.Router();
 	private readonly authService: AuthService = new AuthService();
@@ -15,11 +14,10 @@ export default class AuthController {
 			try {
 				const response = await this.authService.addUser(req.body);
 				res.send(response);
-			}
-			catch(err) {
+			} catch (err) {
 				next(err);
 			}
-		})
+		});
 	}
 
 }

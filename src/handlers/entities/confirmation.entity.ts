@@ -4,12 +4,12 @@ import * as bcrypt from 'bcryptjs';
 
 @Entity('confirmations')
 export default class Confirmation {
-  @PrimaryGeneratedColumn()
-  id: number;
+	@PrimaryGeneratedColumn()
+	id: number;
 
-  @Column({ name: 'email_code', type: 'varchar', length: 255, nullable: true })
-  code: string;
+	@Column({ name: 'email_code', type: 'varchar', length: 255, nullable: true })
+	code: string;
 
-  @Column({ name: 'is_email_confirmed', type: 'boolean', default: false })
-  isEmailConfirmed: boolean;
+	@Column({ name: 'is_email_confirmed', type: 'boolean', default: false })
+	isEmailConfirmed: boolean;
 }
