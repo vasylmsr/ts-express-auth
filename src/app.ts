@@ -11,19 +11,37 @@ export default class App {
 	constructor(controllers, port) {
 		this.app = express();
 		this.port = port;
+		this.initializeGlobalErrorHandler();
 		this.initializeMiddlewares();
 		this.initializeControllers(controllers);
 		this.initializeErrorHandling();
+	}
+	private initializeGlobalErrorHandler() {
+		this.app.use((request, response, next) => {
+			try {
+				next();
+			} catch (error) {
+				const status = error.status || 500;
+				const message = error.message || 'Something went wrong';
+				response.status(status)
+					.send({
+						status,
+						message,
+					});
+			}
+		});
 	}
 
 	private initializeMiddlewares() {
 		this.app.use(bodyParser.json());
 		this.app.use((req, res, next) => {
-			res.header('Access-Control-Allow-Credentials', true);
+			// res.header('Access-Control-Allow-Credentials', true);
 			res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 			next();
 		});
 	}
+
+	''
 
 	private initializeControllers(controllers) {
 		controllers.forEach(controller => {

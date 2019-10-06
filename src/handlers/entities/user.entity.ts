@@ -19,13 +19,12 @@ export default class User {
 	@Column({name: 'last_name', type: 'varchar', length: 27})
 	lastName: string;
 
-	@OneToOne(type => Confirmation)
-	@JoinColumn({ name: 'confirmation_id' })
+	@OneToOne(type => Confirmation, confirmation => confirmation.userId)
 	confirmation: Confirmation;
 
 	@BeforeInsert()
 	async hashPassword() {
-		let salt = bcrypt.genSaltSync(12);
+		const salt = bcrypt.genSaltSync(12);
 		this.password = await bcrypt.hash(this.password, salt);
 	}
 }
