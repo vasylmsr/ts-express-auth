@@ -1,4 +1,4 @@
 export default interface IUserTokens {
-	user: object;
-	tokens: object;
+  user: object;
+  tokens: object;
 }

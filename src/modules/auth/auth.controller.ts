@@ -4,29 +4,29 @@ import LoginDTO from './dto/login.dto';
 import AuthService from './auth.service';
 
 export default class AuthController extends Router {
-	private authService;
+  private authService;
 
-	constructor() {
-		super();
-		this.authService = new AuthService();
-		this.initializeRoutes();
-	}
+  constructor() {
+    super();
+    this.authService = new AuthService();
+    this.initializeRoutes();
+  }
 
-	initializeRoutes() {
-		this.router.post('/signIn', validationMiddleware(LoginDTO), async (req, res, next) => {
-			try {
-				const a = await this.authService.signIn(req.body, req.headers, req.connection);
-				res.send({ a });
-			} catch (err) {
-				next(err);
-			}
-		});
+  initializeRoutes() {
+    this.router.post('/signIn', validationMiddleware(LoginDTO), async (req, res, next) => {
+      try {
+        const a = await this.authService.signIn(req.body, req.headers, req.connection);
+        res.send({ a });
+      } catch (err) {
+        next(err);
+      }
+    });
 
-		// this.router.post('/signOut')
+    // this.router.post('/signOut')
 
-		// this.router.post('/user')
-		// this.router.get('/updateToken')
+    // this.router.post('/user')
+    // this.router.get('/updateToken')
 
-	}
+  }
 
 }

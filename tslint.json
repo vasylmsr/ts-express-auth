@@ -16,7 +16,7 @@
     "ban-types": false,
     "forin": false,
     "no-bitwise": false,
-    "indent": [true, "tabs", 2]
+    "indent": [true, "spaces", 2]
   },
   "rulesDirectory": []
 }
