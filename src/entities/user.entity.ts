@@ -1,7 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert, OneToOne, JoinColumn} from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert, OneToOne, OneToMany, JoinColumn} from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import Confirmation from './confirmation.entity';
-
+import Session from './session.entity';
 @Entity('users')
 export default class User {
 	@PrimaryGeneratedColumn()
@@ -22,9 +22,16 @@ export default class User {
 	@OneToOne(type => Confirmation, confirmation => confirmation.userId)
 	confirmation: Confirmation;
 
+	@OneToMany(type => Session, session => session.userId)
+	sessions: Session[];
+
 	@BeforeInsert()
 	async hashPassword() {
 		const salt = bcrypt.genSaltSync(12);
 		this.password = await bcrypt.hash(this.password, salt);
+	}
+
+	async comparePassword(attempt: string): Promise<User> {
+		return await bcrypt.compare(attempt, this.password);
 	}
 }

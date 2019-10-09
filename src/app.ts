@@ -11,25 +11,9 @@ export default class App {
 	constructor(controllers, port) {
 		this.app = express();
 		this.port = port;
-		this.initializeGlobalErrorHandler();
 		this.initializeMiddlewares();
 		this.initializeControllers(controllers);
 		this.initializeErrorHandling();
-	}
-	private initializeGlobalErrorHandler() {
-		this.app.use((request, response, next) => {
-			try {
-				next();
-			} catch (error) {
-				const status = error.status || 500;
-				const message = error.message || 'Something went wrong';
-				response.status(status)
-					.send({
-						status,
-						message,
-					});
-			}
-		});
 	}
 
 	private initializeMiddlewares() {
@@ -41,12 +25,12 @@ export default class App {
 		});
 	}
 
-	''
-
 	private initializeControllers(controllers) {
-		controllers.forEach(controller => {
-			this.app.use('/v1', controller.router);
+		Object.entries(controllers).forEach(([k, v]) => {
+			// @ts-ignore
+			this.app.use(k, v.router);
 		});
+
 	}
 
 	private initializeErrorHandling() {

@@ -3,13 +3,12 @@ import { validate, ValidationError } from 'class-validator';
 import * as express from 'express';
 import HttpException from '../common/exceptions/HttpException';
 
-function validationMiddleware<T>(dtoClass: any): express.RequestHandler {
-	return  (req, res, next) => {
-		let errors: ValidationError[];
-		validate(plainToClass(dtoClass, req.body)).then(err => errors = err);
+function validationMiddleware(dtoClass: any): express.RequestHandler {
+	return async (req, res, next) => {
+		const errors: ValidationError[] = await validate(plainToClass(dtoClass, req.body));
 		if (errors && errors.length > 0) {
 			const errorsMessages: object[] =  formatErrors(errors);
-			throw new HttpException(errorsMessages, 400);
+			next(new HttpException(errorsMessages, 400));
 		} else {
 			next();
 		}
