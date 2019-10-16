@@ -1,20 +1,23 @@
 import {getManager, getConnection} from 'typeorm';
-import User from '../entities/user.entity';
-import Session from '../entities/session.entity';
-import HttpException from '../common/exceptions/HttpException';
-import JwtAccess from '../common/jwt/jwt.static';
 import * as geo from 'geoip-lite';
+import User from '../../entities/user.entity';
+import Session from '../../entities/session.entity';
+import HttpException from '../../common/exceptions/HttpException';
+import JwtAccess from '../../common/jwt/jwt.static';
+import {BAD_REQUEST} from 'http-status-codes';
 
 export default class UserService {
-  protected async getUser(id) {
-    const user = getConnection().getRepository(User)
+  public async getUser(id: number) {
+    const user = await getConnection().getRepository(User)
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.confirmation', 'confirmation')
       .where('user.id = :id', {id})
       .getOne();
     if (!user) {
-      throw new HttpException('User does not exist', 400);
-    } else { return user; }
+      throw new HttpException('User does not exist', BAD_REQUEST);
+    } else {
+      return user;
+    }
   }
 
   protected async createNewSession(user, headers, connection) {

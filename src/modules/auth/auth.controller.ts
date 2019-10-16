@@ -13,19 +13,32 @@ export default class AuthController extends Router {
   }
 
   initializeRoutes() {
-    this.router.post('/signIn', validationMiddleware(LoginDTO), async (req, res, next) => {
+    this.router.post('/sign_in', validationMiddleware(LoginDTO), async (req, res, next) => {
       try {
-        const a = await this.authService.signIn(req.body, req.headers, req.connection);
-        res.send({ a });
+        const data = await this.authService.signIn(req.body, req.headers, req.connection);
+        res.send({ data });
       } catch (err) {
         next(err);
       }
     });
 
-    // this.router.post('/signOut')
+    this.router.post('/sign_out', async (req, res, next) => {
+      try {
+        const data = await this.authService.signOut(req.headers.authorization);
+        res.send({data});
+      } catch (err) {
+        next(err);
+      }
+    });
 
-    // this.router.post('/user')
-    // this.router.get('/updateToken')
+    this.router.get('/refresh_token', async (req, res, next) => {
+      try {
+        const data = await this.authService.updateTokens(req.headers.authorization);
+        res.send({data});
+      } catch (err) {
+        next(err);
+      }
+    });
 
   }
 
