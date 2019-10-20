@@ -1,5 +1,6 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
+import { PORT } from './common/constants/dotenv';
 import errorMiddleware from './middlewares/error.middleware';
 enum ConsoleColors {
   Green = '\x1b[32m',
@@ -8,9 +9,9 @@ enum ConsoleColors {
 export default class App {
   public app: express.Application;
   public port: number;
-  constructor(controllers, port) {
+  constructor(controllers) {
     this.app = express();
-    this.port = port;
+    this.port = PORT || 5000;
     this.initializeMiddlewares();
     this.initializeControllers(controllers);
     this.initializeErrorHandling();
@@ -38,9 +39,10 @@ export default class App {
   }
 
   public listen() {
-    this.app.listen(this.port, () => {
+    return this.app.listen(this.port, () => {
       // tslint:disable-next-line:no-console
       console.log(ConsoleColors.Green, `App is started on ${this.port} port`);
     });
   }
 }
+

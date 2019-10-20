@@ -12,14 +12,18 @@ export default class UserController extends Router {
     this.initializeRoutes();
   }
 
-  private initializeRoutes() {
-    this.router.get('/:id', [authMiddleware], async (req, res) => {
+  initializeRoutes() {
+    this.router.get('/:id', [authMiddleware], async (req, res, next) => {
+      try {
         const queryUserId = Number(req.params.id);
         if (req.__user__.id !== queryUserId) {
           throw new HttpException('You can not access to this user', FORBIDDEN);
         }
-        const result = await this.userService.getUser(queryUserId);
-        res.send(result);
+        const data = await this.userService.getUser(queryUserId);
+        res.send({ data });
+      } catch (err) {
+        next(err);
+      }
     });
   }
 

@@ -1,5 +1,5 @@
 import User from '../../entities/user.entity';
-import {getConnection, getManager} from 'typeorm';
+import {getConnection, getManager, getRepository} from 'typeorm';
 import HttpException from '../../common/exceptions/HttpException';
 import UserService from '../user/user.service';
 import IUserTokens from '../../common/interfaces/user.tokens.interface';

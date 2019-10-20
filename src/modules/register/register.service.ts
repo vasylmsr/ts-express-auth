@@ -9,6 +9,7 @@ import Confirmation from '../../entities/confirmation.entity';
 import Session from '../../entities/session.entity';
 import ConfirmationEmailDTO from './dto/сonfirmation.email.dto';
 import {BAD_REQUEST, NOT_FOUND} from 'http-status-codes';
+import {getRepository} from 'typeorm';
 
 export default class RegisterService {
   private userRepo;
@@ -66,7 +67,7 @@ export default class RegisterService {
     return await this.userRepo.findOne({ where: { id: userId }, relations: ['confirmation']});
   }
 
-  private sendEmailConfirmation(user: User): number {
+  sendEmailConfirmation(user: User): number {
     const code = Math.floor(Math.random() * (9999 - 1000) + 1000);
     mailInstance.sendMail({
       from: '"Vasyl Mysiura 👻" <foo@example.com>',

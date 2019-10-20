@@ -5,7 +5,7 @@ const { env } = process;
 
 let mailInstance;
 const createEmailConnection = async () => {
-  if (env.NODE_ENV === 'dev') {
+  if (env.NODE_ENV === 'dev' || env.NODE_ENV === 'test') {
     mailInstance = nodemailer.createTransport({
       host: 'smtp.mailtrap.io',
       port: 2525,
