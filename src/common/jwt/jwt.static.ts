@@ -19,7 +19,7 @@ export default abstract class JwtAccess {
   }
 
   static signToken(data: object, secretKey: string, options?: object): string {
-    return jwt.sign({ data }, secretKey, options );
+    return jwt.sign(data, secretKey, options );
   }
 
   static verifyToken(token: string, secretKey: string): Promise<IJwt> {
@@ -36,7 +36,7 @@ export default abstract class JwtAccess {
 
   static createAccessToken(user: User, session: Session): string {
     return JwtAccess.signToken( {
-        data: JwtAccess.setDataForUserToken(user, session),
+        ...JwtAccess.setDataForUserToken(user, session),
         exp: JwtAccess.getAccessExpires,
       },
       JwtAccess.jwtAccessSecret);
@@ -44,7 +44,7 @@ export default abstract class JwtAccess {
 
   static createRefreshToken(user: User, session: Session): string {
     return JwtAccess.signToken( {
-        data: JwtAccess.setDataForUserToken(user, session),
+        ...JwtAccess.setDataForUserToken(user, session),
         exp: JwtAccess.getRefreshExpires,
       },
       JwtAccess.jwtRefreshSecret);

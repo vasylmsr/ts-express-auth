@@ -16,6 +16,7 @@ beforeAll(async () => {
     .execute();
   app = a.listen();
   registerService  = new RegisterService();
+  registerService.sendEmailConfirmation =  jest.fn().mockReturnValue(1111);
 });
 
 describe('Music dream', () => {
@@ -26,33 +27,18 @@ describe('Music dream', () => {
     lastName: 'Parker',
   };
   it('POST /registration ', (done) => {
-    return request(app).post('/registration').send(user).expect(201, done);
+    return request(app).post('/registration').send(user).expect(201).then(response => {
+      expect(response.body.data.user.email).toBe(user.email);
+      done();
+    });
   });
   it('POST /registration validation error', (done) => {
     return request(app).post('/registration').send({...user, email: 1111}).expect(400, done);
   });
 
-  test('Register service - add User', async (done) => {
-    registerService.sendEmailConfirmation =  jest.fn().mockReturnValue(1111);
-    const result = await registerService.addUser({
-      body: {
-        email: 'vddx@xsdjslнr.com',
-        password: '11112222Qq',
-        firstName: 'Peter',
-        lastName: 'Parker',
-      },
-      headers: {
-        'X-Forwarded-For': '192.168.0.1',
-      },
-    });
-    expect(result).toBeDefined();
-    done();
-  });
-
-  test('ss',  async (done) => {
-    registerService.sendEmailConfirmation =  jest.fn().mockReturnValue(1111);
-    return expect( await registerService.addUser({body: {...user}})).rejects.toEqual(
-      new HttpException( 'User already exist', BAD_REQUEST),
-    );
-  });
+  // test('ss',  async (done) => {
+  //   return expect( await registerService.addUser({body: {...user}})).rejects.toEqual(
+  //     new HttpException( 'User already exist', BAD_REQUEST),
+  //   );
+  // });
 });

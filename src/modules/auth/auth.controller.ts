@@ -2,6 +2,7 @@ import Router from '../../common/abstracts/router';
 import validationMiddleware from '../../middlewares/validation.middlewares';
 import LoginDTO from './dto/login.dto';
 import AuthService from './auth.service';
+import * as passport from 'passport';
 
 export default class AuthController extends Router {
   private authService;
@@ -20,6 +21,16 @@ export default class AuthController extends Router {
       } catch (err) {
         next(err);
       }
+    });
+
+    this.router.get('/sign_in/google', passport.authenticate('google', {
+      scope: 'email profile',
+      prompt: 'consent', // ask user confirmation every time
+    }));
+
+    this.router.get('/sign_in/google/callback', passport.authenticate('google'), (req, res) => {
+      console.log(req);
+      res.send({a:1})
     });
 
     this.router.post('/sign_out', async (req, res, next) => {

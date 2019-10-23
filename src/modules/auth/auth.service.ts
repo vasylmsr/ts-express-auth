@@ -9,6 +9,8 @@ import JwtAccess from '../../common/jwt/jwt.static';
 import IJwt from '../../common/jwt/jwt.interface';
 import Session from '../../entities/session.entity';
 
+type VerifyJwtFunc = (token: string) => Promise<IJwt>;
+
 export default class AuthService {
   private userRepo;
   private userService;
@@ -35,14 +37,14 @@ export default class AuthService {
   }
 
   public async signOut(token: string) {
-    const { session } = await this.getUserAndSessionFromRefreshToken(token);
+    const { session } = await this.getUserAndSessionFromToken(token, JwtAccess.verifyRefreshToken);
     session.isActive = false;
     await getManager().save(Session, session);
     return { message: 'Signout '};
   }
 
   protected async updateTokens(token): Promise<IJwtResponse> {
-    const { user, session } = await this.getUserAndSessionFromRefreshToken(token);
+    const { user, session } = await this.getUserAndSessionFromToken(token, JwtAccess.verifyRefreshToken);
     if (token.split(' ')[1] !== session.refreshToken && session.isActive) {
       throw new HttpException('Not Auth', UNAUTHORIZED);
     }
@@ -52,21 +54,19 @@ export default class AuthService {
     return newTokens;
   }
 
-  private async getUserAndSessionFromRefreshToken(token: string) {
-    let tokenUser;
+  public async getUserAndSessionFromToken(token: string, verifyToken: VerifyJwtFunc) {
+    let tokenUser: IJwt;
     try {
-      tokenUser = await JwtAccess.verifyRefreshToken(token) as IJwt;
+      tokenUser = await verifyToken(token);
     } catch (err) {
-      throw new HttpException('Token expires', UNAUTHORIZED);
+      throw new HttpException(err.name, UNAUTHORIZED);
     }
-
-    const sessionId = tokenUser.data.sessionId;
+    const sessionId = tokenUser.sessionId;
     const user = await getConnection().getRepository(User)
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.sessions', 'sessions')
       .where('sessions.id = :id', { id: sessionId })
       .getOne();
-
     const [ session ] = user.sessions;
     return { user , session };
   }

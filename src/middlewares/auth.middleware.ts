@@ -2,7 +2,7 @@ import JwtAccess from '../common/jwt/jwt.static';
 import HttpException from '../common/exceptions/HttpException';
 import { FORBIDDEN, UNAUTHORIZED } from 'http-status-codes';
 import User from '../entities/user.entity';
-import UserService from '../modules/user/user.service';
+import AuthService from '../modules/auth/auth.service';
 
 async function authMiddleware(request, response, next) {
   try {
@@ -28,13 +28,15 @@ async function authAndConfirmedMiddleware(request, response, next) {
 }
 async function getUser(request): Promise<User> {
   try {
-    const userService = new UserService();
-    const dataFromToken = await JwtAccess.verifyAccessToken(request.headers.authorization);
-    const user =  await userService.getUser(dataFromToken.data.userId);
-    if (!user) { throw new HttpException('', UNAUTHORIZED); }
+    const authService = new AuthService();
+    const { user, session } = await authService
+      .getUserAndSessionFromToken(request.headers.authorization, JwtAccess.verifyAccessToken);
+    if (!user || !session || !session.isActive) {
+      throw new HttpException('', UNAUTHORIZED);
+    }
     return user;
   } catch (e) {
-    throw new HttpException(e.name, UNAUTHORIZED);
+    throw e;
   }
 }
 export default authMiddleware;

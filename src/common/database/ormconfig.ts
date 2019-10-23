@@ -9,6 +9,11 @@ export default {
     password: env.DB_PASSWORD,
     database: env.DB_DATABASE,
     port: Number(env.DB_PORT),
-    entities: [ './src/entities/*.entity{.ts,.js}' ],
+    entities: [ 'src/entities/*.entity{.ts,.js}' ],
     synchronize: true,
+    migrationsTableName: 'migrations',
+    migrations: ['src/common/database/migrations/*{.ts,.js}'],
+    cli: {
+        migrationsDir: 'src/common/database/migrations',
+    },
   };

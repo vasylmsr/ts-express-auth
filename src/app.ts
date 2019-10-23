@@ -1,6 +1,8 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { PORT } from './common/constants/dotenv';
+import passportStrategies from './middlewares/passport';
+import * as passport from 'passport';
 import errorMiddleware from './middlewares/error.middleware';
 enum ConsoleColors {
   Green = '\x1b[32m',
@@ -19,6 +21,9 @@ export default class App {
 
   private initializeMiddlewares() {
     this.app.use(bodyParser.json());
+    passportStrategies();
+    this.app.use(passport.initialize());
+    this.app.use(passport.session());
     this.app.use((req, res, next) => {
       // res.header('Access-Control-Allow-Credentials', true);
       res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
@@ -45,4 +50,3 @@ export default class App {
     });
   }
 }
-
