@@ -7,9 +7,8 @@ import UserService from '../user/user.service';
 import User from '../../entities/user.entity';
 import Confirmation from '../../entities/confirmation.entity';
 import Session from '../../entities/session.entity';
-import ConfirmationEmailDTO from './dto/сonfirmation.email.dto';
+import ConfirmationEmailDTO from './dto/confirmation.email.dto';
 import {BAD_REQUEST, NOT_FOUND} from 'http-status-codes';
-import {getRepository} from 'typeorm';
 
 export default class RegisterService {
   private userRepo;
@@ -29,16 +28,14 @@ export default class RegisterService {
     if (existedUser) {
       throw new HttpException('User already exist', BAD_REQUEST);
     } else {
-        let user = await this.userRepo.create({ password, email, firstName, lastName });
-        user = await this.userRepo.save(user);
-
+        let user = await this.userRepo.createAndSave({ password, email, firstName, lastName });
         const emailCode = this.sendEmailConfirmation(user);
-        const confirmation = await this.confirmationRepo.create({ emailCode,  userId: user.id });
-        await this.confirmationRepo.save(confirmation);
+        await this.confirmationRepo.createAndSave({ emailCode,  userId: user.id });
 
         const tokens = await this.userService.createNewSession(user, req.headers, req.connection);
-        user = await this.getOneUser(user.id);
-        return { user, tokens };
+        user = await this.userService.getUser(user.id);
+        user.tokens = tokens;
+        return user;
     }
   }
 
@@ -61,10 +58,6 @@ export default class RegisterService {
         throw new HttpException('Code does not match', BAD_REQUEST);
       }
     } else { throw new HttpException('User does not exist', NOT_FOUND); }
-  }
-
-  private async getOneUser(userId: number): Promise<User> {
-    return await this.userRepo.findOne({ where: { id: userId }, relations: ['confirmation']});
   }
 
   sendEmailConfirmation(user: User): number {

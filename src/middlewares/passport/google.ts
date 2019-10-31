@@ -1,7 +1,7 @@
 import * as passport from 'passport';
 import * as googleOauth from 'passport-google-oauth';
 import * as fs from 'fs';
-import User from '../../entities/user.entity';
+import {ProviderType} from '../../entities/provider.entity';
 
 const googleClient = fs.readFileSync(__dirname + '/client_id_google.json').toString();
 const { web: {
@@ -9,8 +9,6 @@ const { web: {
   client_secret: clientSecret,
   redirect_uris } } = JSON.parse(googleClient);
 
-passport.serializeUser((user, done) => { done(null, user); });
-passport.deserializeUser((user, done) =>  { done(null, user); });
 export default () => {
   const GoogleStrategy = googleOauth.OAuth2Strategy;
   passport.use(new GoogleStrategy({
@@ -18,8 +16,18 @@ export default () => {
       clientSecret,
       callbackURL: redirect_uris[0],
     }, (accessToken, refreshToken, profile, done) => {
-      console.log(profile)
-      return done(null, profile);
+      const {
+        email,
+        given_name: firstName,
+        family_name: lastName,
+        picture,
+        email_verified: emailVerified,
+        locale } = profile._json;
+
+      return done(null, {
+        email, firstName, lastName, picture, emailVerified, locale,
+        providerType: ProviderType[profile.provider], photoUrl: picture
+      });
     },
   ));
 };

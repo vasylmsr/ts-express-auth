@@ -2,7 +2,7 @@ import Router from '../common/abstracts/router';
 
 export default class AppController extends Router {
   constructor() {
-    super();
+    super('/');
     this.initializeRoutes();
   }
 

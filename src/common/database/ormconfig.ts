@@ -10,7 +10,7 @@ export default {
     database: env.DB_DATABASE,
     port: Number(env.DB_PORT),
     entities: [ 'src/entities/*.entity{.ts,.js}' ],
-    synchronize: true,
+    synchronize: false,
     migrationsTableName: 'migrations',
     migrations: ['src/common/database/migrations/*{.ts,.js}'],
     cli: {

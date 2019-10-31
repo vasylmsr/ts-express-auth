@@ -4,10 +4,10 @@ import UserController from './user/user.controller';
 import AppController from './app.controller';
 
 export default () => {
-  return {
-    '/': new AppController(),
-    '/registration': new RegisterController(),
-    '/auth': new AuthController(),
-    '/user': new UserController(),
-  };
+  return [
+    new AppController(),
+    new RegisterController(),
+    new AuthController(),
+    new UserController(),
+  ];
 };

@@ -14,16 +14,15 @@ export default class App {
   constructor(controllers) {
     this.app = express();
     this.port = PORT || 5000;
-    this.initializeMiddlewares();
+    this.initializeMiddleware();
     this.initializeControllers(controllers);
     this.initializeErrorHandling();
   }
 
-  private initializeMiddlewares() {
-    this.app.use(bodyParser.json());
+  private initializeMiddleware() {
     passportStrategies();
+    this.app.use(bodyParser.json());
     this.app.use(passport.initialize());
-    this.app.use(passport.session());
     this.app.use((req, res, next) => {
       // res.header('Access-Control-Allow-Credentials', true);
       res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
@@ -32,11 +31,9 @@ export default class App {
   }
 
   private initializeControllers(controllers) {
-    Object.entries(controllers).forEach(([k, v]) => {
-      // @ts-ignore
-      this.app.use(k, v.router);
+    controllers.forEach(controller => {
+      this.app.use(controller.path, controller.router as express.Router);
     });
-
   }
 
   private initializeErrorHandling() {

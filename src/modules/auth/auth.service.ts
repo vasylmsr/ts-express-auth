@@ -1,23 +1,29 @@
-import User from '../../entities/user.entity';
-import {getConnection, getManager, getRepository} from 'typeorm';
+import {getConnection, getManager} from 'typeorm';
 import HttpException from '../../common/exceptions/HttpException';
-import UserService from '../user/user.service';
-import IUserTokens from '../../common/interfaces/user.tokens.interface';
 import {UNAUTHORIZED} from 'http-status-codes';
 import IJwtResponse from '../../common/jwt/jwt.response.interface';
-import JwtAccess from '../../common/jwt/jwt.static';
 import IJwt from '../../common/jwt/jwt.interface';
+import IUserTokens from '../../common/interfaces/user.tokens.interface';
+import JwtAccess from '../../common/jwt/jwt.static';
+import User from '../../entities/user.entity';
 import Session from '../../entities/session.entity';
+import Provider from '../../entities/provider.entity';
+import UserService from '../user/user.service';
+import Confirmation from '../../entities/confirmation.entity';
 
 type VerifyJwtFunc = (token: string) => Promise<IJwt>;
 
 export default class AuthService {
   private userRepo;
   private userService;
+  private providerRepo;
+  private confirmationRepo;
 
   constructor() {
     this.userService = new UserService();
     this.userRepo = getConnection().getRepository(User);
+    this.providerRepo = getConnection().getRepository(Provider);
+    this.confirmationRepo = getConnection().getRepository(Confirmation);
   }
 
   public async signIn({email, password}, headers, connection): Promise<IUserTokens> {
@@ -32,15 +38,52 @@ export default class AuthService {
     } else {
       delete user.password;
       const tokens = await this.userService.createNewSession(user, headers, connection);
-      return { user, tokens } as IUserTokens;
+      user.tokens = tokens;
+      return user as IUserTokens;
     }
+  }
+
+  public async signInViaSocial(oauthUser, headers, connection) {
+    let provider;
+    let user;
+    provider = await this.providerRepo.findOne({ email: oauthUser.email } );
+    if (provider) {
+      user = await this.userRepo.findOne({ id: provider.userId });
+    } else {
+      user = await this.registerUserWithProvider(oauthUser);
+    }
+    return await this.createSessionAndGetFullUser(user, headers, connection);
   }
 
   public async signOut(token: string) {
     const { session } = await this.getUserAndSessionFromToken(token, JwtAccess.verifyRefreshToken);
     session.isActive = false;
     await getManager().save(Session, session);
-    return { message: 'Signout '};
+    return { message: 'Sign out '};
+  }
+
+  private async createSessionAndGetFullUser(user, headers, connection) {
+    const tokens: Session = await this.userService.createNewSession(user, headers, connection);
+    user = await this.userService.getUser(user.id);
+    user.tokens = tokens;
+    return user;
+  }
+
+  private async registerUserWithProvider(providerData) {
+    const { email, firstName, lastName } = providerData;
+    const newUser = await this.userRepo.createAndSave({ email, firstName, lastName });
+
+    await this.providerRepo.createAndSave({
+      ...providerData,
+      userId: newUser.id,
+    });
+
+    await this.confirmationRepo.createAndSave({
+      isEmailConfirmed: true,
+      userId: newUser.id,
+    });
+
+    return newUser;
   }
 
   protected async updateTokens(token): Promise<IJwtResponse> {

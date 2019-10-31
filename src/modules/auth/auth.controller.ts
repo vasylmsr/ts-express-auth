@@ -8,7 +8,7 @@ export default class AuthController extends Router {
   private authService;
 
   constructor() {
-    super();
+    super('/auth');
     this.authService = new AuthService();
     this.initializeRoutes();
   }
@@ -16,21 +16,29 @@ export default class AuthController extends Router {
   initializeRoutes() {
     this.router.post('/sign_in', validationMiddleware(LoginDTO), async (req, res, next) => {
       try {
-        const data = await this.authService.signIn(req.body, req.headers, req.connection);
-        res.send({ data });
+        const user = await this.authService.signIn(req.body, req.headers, req.connection);
+        res.send({ user });
       } catch (err) {
         next(err);
       }
     });
 
     this.router.get('/sign_in/google', passport.authenticate('google', {
+      session: false,
       scope: 'email profile',
       prompt: 'consent', // ask user confirmation every time
     }));
 
-    this.router.get('/sign_in/google/callback', passport.authenticate('google'), (req, res) => {
-      console.log(req);
-      res.send({a:1})
+    this.router.get('/sign_in/google/callback', passport.authenticate('google', {
+      session: false,
+    }), async (req, res, next) => {
+      try {
+        // @ts-ignore
+        const user = await this.authService.signInViaSocial(req.user, req.headers, req.connection);
+        res.send({ user });
+      } catch (err) {
+        next(err);
+      }
     });
 
     this.router.post('/sign_out', async (req, res, next) => {

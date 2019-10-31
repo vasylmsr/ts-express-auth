@@ -7,7 +7,7 @@ import {FORBIDDEN} from 'http-status-codes';
 export default class UserController extends Router {
   private userService;
   constructor() {
-    super();
+    super('/user');
     this.userService = new UserService();
     this.initializeRoutes();
   }
