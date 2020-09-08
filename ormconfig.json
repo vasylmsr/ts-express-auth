@@ -3,7 +3,7 @@
   "host": "localhost",
   "username": "postgres",
   "password": "mypassword",
-  "database": "music_dream",
+  "database": "music_dream_test",
   "port": 5432,
   "entities": [
     "src/entities/*.entity{.ts,.js}"

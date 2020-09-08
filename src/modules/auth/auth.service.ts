@@ -37,8 +37,7 @@ export default class AuthService {
       throw new HttpException('Invalid username/password', UNAUTHORIZED);
     } else {
       delete user.password;
-      const tokens = await this.userService.createNewSession(user, headers, connection);
-      user.tokens = tokens;
+      user.tokens = await this.userService.createNewSession(user, headers, connection);
       return user as IUserTokens;
     }
   }

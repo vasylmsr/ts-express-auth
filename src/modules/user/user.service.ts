@@ -35,7 +35,7 @@ export default class UserService {
     });
     const tokens = JwtAccess.createTokensPair(user, session);
     session.refreshToken = tokens.refreshToken;
-    await this.sessionRepo(session);
+    await this.sessionRepo.save(session);
     return tokens;
   }
 }
