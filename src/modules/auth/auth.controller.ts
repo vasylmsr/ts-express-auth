@@ -28,7 +28,10 @@ export default class AuthController extends Router {
       scope: 'email profile',
       prompt: 'consent', // ask user confirmation every time
     }));
-
+    // Користувач переходить на сторінку /sign_in/google і за допомогою паспорт відбувається редірект на
+    // сторінку гугл авторизації, якщо юзер успішно дав нам права, то гугл повертає юзера на callback
+    // сторінку /sign_in/google/callback і передає у параметри код. За допомогою цього коду ми отримуємо
+    // токен, а за допомогою токена потім юзера
     this.router.get('/sign_in/google/callback', passport.authenticate('google', {
       session: false,
     }), async (req, res, next) => {

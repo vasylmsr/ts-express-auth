@@ -2,9 +2,9 @@ import * as request from 'supertest';
 import server from '../server';
 import User from '../entities/user.entity';
 import {getConnection, getRepository} from 'typeorm';
-import HttpException from "../common/exceptions/HttpException";
+import HttpException from '../common/exceptions/HttpException';
 import RegisterService from '../modules/register/register.service';
-import {BAD_REQUEST} from "http-status-codes";
+import {BAD_REQUEST} from 'http-status-codes';
 let app;
 let registerService;
 beforeAll(async () => {
@@ -28,7 +28,7 @@ describe('Music dream', () => {
   };
   it('POST /registration ', (done) => {
     return request(app).post('/registration').send(user).expect(201).then(response => {
-      expect(response.body.data.user.email).toBe(user.email);
+      expect(response.body.user.email).toBe(user.email);
       done();
     });
   });
