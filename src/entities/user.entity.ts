@@ -1,23 +1,32 @@
-import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert, OneToOne, OneToMany, JoinColumn} from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  BeforeInsert,
+  OneToOne,
+  OneToMany,
+  JoinColumn,
+  CreateDateColumn, UpdateDateColumn,
+} from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import Confirmation from './confirmation.entity';
 import Session from './session.entity';
+import Provider from './provider.entity';
+import Account from './account.abstract';
+
 @Entity('users')
-export default class User {
+export default class User extends Account {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({name: 'email', type: 'varchar', unique: true, length: 40 })
-  email: string;
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 
-  @Column({type: 'varchar', length: 255, select: false})
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
+
+  @Column({type: 'varchar', length: 255, select: false, nullable: true})
   password: string;
-
-  @Column({name: 'first_name', type: 'varchar', length: 28})
-  firstName: string;
-
-  @Column({name: 'last_name', type: 'varchar', length: 27})
-  lastName: string;
 
   @OneToOne(type => Confirmation, confirmation => confirmation.userId)
   confirmation: Confirmation;
@@ -25,10 +34,15 @@ export default class User {
   @OneToMany(type => Session, session => session.userId)
   sessions: Session[];
 
+  @OneToMany(type => Provider, provider => provider.user)
+  providers: Provider[];
+
   @BeforeInsert()
   async hashPassword() {
-    const salt = bcrypt.genSaltSync(12);
-    this.password = await bcrypt.hash(this.password, salt);
+    if (this.password) {
+      const salt = bcrypt.genSaltSync(12);
+      this.password = await bcrypt.hash(this.password, salt);
+    }
   }
 
   async comparePassword(attempt: string): Promise<User> {

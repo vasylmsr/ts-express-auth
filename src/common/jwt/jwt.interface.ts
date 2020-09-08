@@ -1,5 +1,5 @@
 export default interface IJwt {
-	accessToken: string;
-	refreshToken: string;
-	expiresIn: number;
+  userId: number;
+  sessionId: number;
+  email: string;
 }
