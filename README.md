@@ -1,4 +1,4 @@
-# deezer-analitycs
+# ts-express-auth
 
 # Install all dependencies
 
